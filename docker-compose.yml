@@ -6,7 +6,7 @@ services:
       args:
         - BUILD_NUMBER=${BUILD_NUMBER:-local}
         - GIT_COMMIT=${GIT_COMMIT:-local}
-  networks:
+      networks:
       - yossi-network
   api-service:
     build:
