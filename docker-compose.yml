@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  api-service:
+    build: ./api-service
+    ports:
+      - "4000:4000"
+    networks:
+      - yossi-network
+
+  web-service:
+    build: ./web-service
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://api-service:4000/api/time
+    networks:
+      - yossi-network
+
+networks:
+  yossi-network:
+    driver: bridge
