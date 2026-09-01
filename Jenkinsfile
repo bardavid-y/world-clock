@@ -57,8 +57,11 @@ pipeline {
         }
     }
     post {
-        always {
-            echo 'Cleaning up test environment containers...'
+        success {
+            echo 'Pipeline passed successfully! Leaving containers running for you.'
+        }
+        failure {
+            echo 'Pipeline failed. Cleaning up test environment...'
             sh 'docker compose down'
         }
     }
