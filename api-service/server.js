@@ -1,8 +1,14 @@
 const express = require('express');
 const app = express();
 const PORT = 4000;
+
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'api-service' });
+  const fullCommit = process.env.GIT_COMMIT || 'unknown';
+  res.json({
+    status: "ok",
+    build: process.env.BUILD_NUMBER || "local",
+    commit: fullCommit !== 'unknown' ? fullCommit.substring(0, 7) : "local"
+  });
 });
 
 app.get('/api/time', (req, res) => {

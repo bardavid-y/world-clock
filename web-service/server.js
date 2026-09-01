@@ -4,7 +4,12 @@ const PORT = 3000;
 const API_URL = process.env.API_URL || 'http://api-service:4000/api/time';
 
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'UP', service: 'web-service' });
+  const fullCommit = process.env.GIT_COMMIT || 'unknown';
+  res.json({
+    status: "ok",
+    build: process.env.BUILD_NUMBER || "local",
+    commit: fullCommit !== 'unknown' ? fullCommit.substring(0, 7) : "local"
+  });
 });
 
 app.get('/', async (req, res) => {

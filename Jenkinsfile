@@ -17,17 +17,37 @@ pipeline {
         }
         stage('Build and Start Services') {
             steps {
-                echo 'Building and starting Docker containers...'
+                echo 'Building and starting Docker containers with Build Args...'
                 sh 'docker compose down'
-                sh 'docker compose up --build -d'
+                sh """
+                    BUILD_NUMBER=${env.BUILD_NUMBER} \
+                    GIT_COMMIT=${env.GIT_COMMIT} \
+                    docker compose build \
+                      --build-arg BUILD_NUMBER=${env.BUILD_NUMBER} \
+                      --build-arg GIT_COMMIT=${env.GIT_COMMIT}
+                    
+                    BUILD_NUMBER=${env.BUILD_NUMBER} \
+                    GIT_COMMIT=${env.GIT_COMMIT} \
+                    docker compose up -d
+                """
             }
         }
-        stage('Run Integration Test') {
+        stage('Run Normal Integration Test') {
             steps {
                 echo 'Waiting for services to spin up...'
                 sleep 5
-                echo 'Running integration test between Web and API...'
-                sh 'node tests/integration.test.js'
+                sh 'WEB_URL=http://host.docker.internal:3000 node tests/integration.test.js normal'
+            }
+        }
+        stage('Chaos Test: Kill API Service') {
+            steps {
+                echo 'CHAOS: Stopping API service...'
+                sh 'docker compose stop api-service'
+            }
+        }
+        stage('Run Chaos Validation Test') {
+            steps {
+                sh 'WEB_URL=http://host.docker.internal:3000 node tests/integration.test.js chaos'
             }
         }
     }

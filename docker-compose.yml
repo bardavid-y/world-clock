@@ -1,6 +1,13 @@
 version: '3.8'
 
 services:
+  build:
+      context: ./api-service
+      args:
+        - BUILD_NUMBER=${BUILD_NUMBER:-local}
+        - GIT_COMMIT=${GIT_COMMIT:-local}
+  networks:
+      - yossi-network
   api-service:
     build: ./api-service
     ports:
