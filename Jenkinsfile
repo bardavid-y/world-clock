@@ -55,6 +55,13 @@ pipeline {
                 sh 'WEB_URL=http://host.docker.internal:3000 node tests/integration.test.js chaos'
             }
         }
+        stage('Recover API Service') {
+            steps {
+                echo 'RECOVERY: Restarting API service so environment remains fully operational...'
+                sh 'docker compose start api-service'
+            }
+        }
+
     }
     post {
         success {
