@@ -9,7 +9,11 @@ services:
   networks:
       - yossi-network
   api-service:
-    build: ./api-service
+    build:
+      context: ./web-service
+      args:
+        - BUILD_NUMBER=${BUILD_NUMBER:-local}
+        - GIT_COMMIT=${GIT_COMMIT:-local}
     ports:
       - "4000:4000"
     networks:

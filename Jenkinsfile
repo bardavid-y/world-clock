@@ -12,7 +12,12 @@ pipeline {
         stage('Inject Build Stamp') {
             steps {
                 echo "Injecting Build Stamp: ${env.BUILD_STAMP}"
-                sh "echo BUILD_VERSION=${env.BUILD_STAMP} > .env"
+                sh '''
+                    docker compose build \
+                      --build-arg BUILD_NUMBER=${BUILD_NUMBER} \
+                      --build-arg GIT_COMMIT=${GIT_COMMIT}
+                    docker compose up -d
+                '''
             }
         }
         stage('Build and Start Services') {
