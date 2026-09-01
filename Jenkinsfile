@@ -6,7 +6,6 @@ pipeline {
     stages {
         stage('Checkout from Git') {
             steps {
-                // משיכת הקוד מ-GitHub (Jenkins עושה זאת אוטומטית אם מוגדר ב-Job)
                 checkout scm
             }
         }
@@ -16,18 +15,26 @@ pipeline {
                 sh "echo BUILD_VERSION=${env.BUILD_STAMP} > .env"
             }
         }
-        stage('Test Docker CLI & Compose') {
+        stage('Build and Start Services') {
             steps {
-                sh 'docker --version'
-                sh 'docker compose version'
+                echo 'Building and starting Docker containers...'
+                sh 'docker compose down'
+                sh 'docker compose up --build -d'
             }
         }
-        stage('Build and Deploy Services') {
+        stage('Run Integration Test') {
             steps {
-                echo 'Building Docker images...'
-                sh 'docker compose build'
-                sh 'docker compose up -d'
+                echo 'Waiting for services to spin up...'
+                sleep 5
+                echo 'Running integration test between Web and API...'
+                sh 'node tests/integration.test.js'
             }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up test environment containers...'
+            sh 'docker compose down'
         }
     }
 }
