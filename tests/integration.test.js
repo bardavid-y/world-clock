@@ -3,8 +3,8 @@ const assert = require('assert');
 async function runIntegrationTest() {
   console.log('Starting Integration Test: Checking Web to API communication...');
   
-  // ה-Web פתוח מבחוץ בפורט 3000
-  const webUrl = 'http://localhost:3000/';
+  // שימוש ב-host.docker.internal כדי שג'נקינס יוכל לגשת לשירות הרץ ב-Docker
+  const webUrl = process.env.WEB_URL || 'http://host.docker.internal:3000/';
 
   try {
     const response = await fetch(webUrl);
@@ -15,7 +15,6 @@ async function runIntegrationTest() {
 
     const htmlContent = await response.text();
     
-    // מוודא שהעמוד מכיל את הנתונים שהתקבלו מה-API (ישראל ופלורידה)
     if (htmlContent.includes('Israel') && htmlContent.includes('Florida')) {
       console.log('SUCCESS: Web service successfully fetched data from API service!');
       process.exit(0);
